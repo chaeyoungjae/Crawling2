@@ -10,6 +10,7 @@ import java.util.List;
 @Table(name="meta_info")
 public class MetaInfo {
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     @ManyToOne
     private Item item;
