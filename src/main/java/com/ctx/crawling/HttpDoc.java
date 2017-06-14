@@ -42,7 +42,7 @@ public class HttpDoc {
 
         }
     }
-    public BufferedReader sendPost(String url, List<NameValuePair> postParams)
+    public List sendPost(String url, List<NameValuePair> postParams)
             throws Exception {
 
         HttpPost post = new HttpPost(url);
@@ -67,8 +67,15 @@ public class HttpDoc {
         System.out.println("Post parameters : " + postParams);
         System.out.println("Response Code : " + responseCode);
         BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), "EUC-KR"));
+        StringBuffer result = new StringBuffer();
+        String line = "";
+        List lResult = new ArrayList<String>();
 
-        return rd;
+        while ( (line = rd.readLine()) != null ) {
+            lResult.add(line);
+        }
+        rd.close();
+        return lResult;
     }
     public List<NameValuePair> getFormParams(String html, Map<String, Object> mLoginInfo)
             throws UnsupportedEncodingException {
@@ -124,7 +131,7 @@ public class HttpDoc {
             return null;
         }
     }
-    public BufferedReader GetPageContentBuffer(String url, String encd) throws Exception {
+    public List GetPageContentBuffer(String url, String encd) throws Exception {
         try {
             HttpGet request = new HttpGet(url);
             request.setHeader("Host",  "con.toolpark.kr");
@@ -139,7 +146,15 @@ public class HttpDoc {
             Header[] headers = response.getAllHeaders();
             BufferedReader rd = new BufferedReader(
                     new InputStreamReader(response.getEntity().getContent(), encd));
-            return rd;
+            StringBuffer result = new StringBuffer();
+            String line = "";
+            List lResult = new ArrayList<String>();
+
+            while ( (line = rd.readLine()) != null ) {
+                lResult.add(line);
+            }
+            rd.close();
+            return lResult;
         } catch ( Exception e ) {
             System.out.println( " valuerrr : " +e.getMessage());
             return null;

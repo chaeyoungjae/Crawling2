@@ -24,16 +24,15 @@ public class CretecDoc extends HttpDoc {
     public void Login(Map<String, Object> mLoginInfo) throws Exception {
         String page = GetPageContent("http://" + domain + ".toolpark.kr/mng/login.do");
         List<NameValuePair> postParams = getFormParams(page, mLoginInfo);
-        BufferedReader resultBr = sendPost("http://" + domain + ".toolpark.kr/uat/uia/actionSecurityLogin.do", postParams);
+        List<String> resultBr = sendPost("http://" + domain + ".toolpark.kr/uat/uia/actionSecurityLogin.do", postParams);
         StringBuffer resultSb = new StringBuffer();
-        String line = "";
-        while ( (line = resultBr.readLine()) != null ) {
-            resultSb.append(line);
+        for ( String data : resultBr ) {
+            resultSb.append(data);
         }
         String[] token = resultSb.toString().split("/");
         GetPageContent("http://" + domain + ".toolpark.kr/uat/uia/jsecurity_check.do?id=" + token[1] + "&pass=" + token[2]);
     }
-    public BufferedReader getCsvItemData() throws Exception {
+    public List<String> getCsvItemData() throws Exception {
         String GoodData = GetPageContent("http://" + domain + ".toolpark.kr/Admin/Goods.do");
         Document doc = Jsoup.parse(GoodData);
         Element loginform = doc.getElementsByTag("form").get(2);
@@ -65,7 +64,7 @@ public class CretecDoc extends HttpDoc {
         return sendPost("http://" + domain + ".toolpark.kr/Admin/GoodsExcel.do", paramList);
 
     }
-    public BufferedReader getCsvCateData() throws Exception {
+    public List getCsvCateData() throws Exception {
         return GetPageContentBuffer("http://" + domain + ".toolpark.kr/Admin/GoodsCate.do", "EUC-KR");
     }
 }

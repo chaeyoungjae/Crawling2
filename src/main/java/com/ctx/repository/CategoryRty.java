@@ -8,8 +8,8 @@ import java.util.List;
 /**
  * Created by chaester on 2017-06-05.
  */
-public interface CategoryRty extends CrudRepository<Category, Long> {
+public interface CategoryRty extends CrudRepository<Category, String> {
     @Override
     Iterable<Category> findAll();
-    Long countByCategoryLAndCategoryMAndCategorySAndCategorySS(String categoryL, String categoryM, String categoryS, String categorySS);
+    Long countById(String id);
 }

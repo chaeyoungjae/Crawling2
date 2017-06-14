@@ -16,6 +16,23 @@ public class MetaInfo {
     private Item item;
     private String name;
 
-    @OneToMany(mappedBy = "metaInfo")
-    private List<MetaInfoDetail> metaDetails;
+    public Long getId() {
+        return id;
+    }
+
+    public Item getItem() {
+        return item;
+    }
+
+    public void setItem(Item item) {
+        this.item = item;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 }

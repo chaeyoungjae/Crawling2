@@ -23,12 +23,4 @@ public class ItemPrice {
     public Item getItem() {
         return item;
     }
-
-    public void setItem(Item item) {
-        if ( this.item != null ) {
-            this.item.getItemPriceList().remove(this);
-        }
-        this.item = item;
-        item.getItemPriceList().add(this);
-    }
 }

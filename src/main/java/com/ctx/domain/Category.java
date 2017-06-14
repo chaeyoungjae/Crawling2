@@ -13,8 +13,7 @@ import java.util.List;
 @Table(name="category")
 public class Category implements Serializable {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    private String id;
 
     @Column(name="cate_nm")
     private String  categoryNm;
@@ -28,4 +27,33 @@ public class Category implements Serializable {
     @OneToMany(mappedBy = "category")
     private List<Item> items = new ArrayList<>();
 
+    public Category(String id) {
+        this.id = id;
+    }
+    public Category() {
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getCategoryNm() {
+        return categoryNm;
+    }
+
+    public void setCategoryNm(String categoryNm) {
+        this.categoryNm = categoryNm;
+    }
+
+    public Category getParent() {
+        return parent;
+    }
+
+    public void setParent(Category parent) {
+        this.parent = parent;
+    }
 }
