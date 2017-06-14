@@ -1,5 +1,6 @@
 package com.ctx.domain;
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -9,12 +10,14 @@ import java.util.List;
  */
 @Entity
 @Table(name="item")
-public class Item {
+public class Item implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private String  id;
     @ManyToOne
-    private ItemMaster master;                  // 대표 상품군
+    private Item    master;                     // 대표상품
+    @OneToMany(mappedBy = "master")
+    private List<Item> children;                // 자식 상품
     private String  prodCd;                     // 상품코드
     private String  itemName;                   // 실제 제품명
     @OneToMany(mappedBy = "item")
@@ -31,10 +34,12 @@ public class Item {
     private String  topImageUrl;                // 대표 이미지
     @CollectionTable
     private Collection<String> imageUrl;        // 나머지 이미지
-    @OneToOne
+    @ManyToOne
     private Category category;                  // 카테고리
-    @OneToOne
+    @ManyToOne
     private Brand   brand;                      // 브랜드
+    @OneToMany(mappedBy = "master")
+    private List<MetaInfo> metaInfos;
 
     private Integer hits;                       // 조회 수
     private String  useYn;                      // 노출여부
@@ -48,17 +53,5 @@ public class Item {
 
     public void setItemPriceList(List<ItemPrice> itemPriceList) {
         this.itemPriceList = itemPriceList;
-    }
-
-    public ItemMaster getMaster() {
-        return master;
-    }
-
-    public void setMaster(ItemMaster master) {
-        if ( this.master != null ) {
-            this.master.getSub_item().remove(this);
-        }
-        this.master = master;
-        master.getSub_item().add(this);
     }
 }
