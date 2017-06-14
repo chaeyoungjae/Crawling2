@@ -134,7 +134,6 @@ public class CrawlingApplication implements CommandLineRunner {
                         metaInfoDetail.setName(datas[1]);
                         metaInfoDetail.setMetaInfo(metaInfo);
                         metaInfoDetailRty.save(metaInfoDetail);
-
                     }
                 }
                 if ( aItem[27] != null ) { //제품이미지 add
