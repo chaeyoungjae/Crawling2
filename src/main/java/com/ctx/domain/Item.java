@@ -1,7 +1,7 @@
 package com.ctx.domain;
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -12,8 +12,7 @@ import java.util.List;
 @Table(name="item")
 public class Item implements Serializable {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private String  id;
+    private Long  id;
     @ManyToOne
     private Item    master;                     // 대표상품
     @OneToMany(mappedBy = "master")
@@ -36,7 +35,7 @@ public class Item implements Serializable {
             name = "T_IMAGE_URL",
             joinColumns = @JoinColumn(name="id", referencedColumnName = "id")
     )
-    private List<String> imageUrl;        // 나머지 이미지
+    private List<String> imageUrl = new ArrayList<>(); // 나머지 이미지
     @ManyToOne
     private Category category;                  // 카테고리
     @ManyToOne
@@ -46,12 +45,14 @@ public class Item implements Serializable {
     private String  soldoutYn;                  // 품절여부
     private String  delYn;                      // 삭제여부
     private Date    regDate;                    // 수정일
+    @OneToOne
+    private ItemDelivery itemDelivery;          // 배송
 
-    public String getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -221,5 +222,17 @@ public class Item implements Serializable {
 
     public void setRegDate(Date regDate) {
         this.regDate = regDate;
+    }
+
+    public ItemDelivery getItemDelivery() {
+        return itemDelivery;
+    }
+
+    public void setItemDelivery(ItemDelivery itemDelivery) {
+        this.itemDelivery = itemDelivery;
+    }
+
+    public List<String> getImageUrl() {
+        return imageUrl;
     }
 }

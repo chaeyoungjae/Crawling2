@@ -1,14 +1,9 @@
 package com.ctx;
 
 import com.ctx.crawling.CretecDoc;
-import com.ctx.domain.Category;
-import com.ctx.domain.Item;
-import com.ctx.domain.MetaInfo;
-import com.ctx.domain.MetaInfoDetail;
-import com.ctx.repository.CategoryRty;
-import com.ctx.repository.ItemRty;
-import com.ctx.repository.MetaInfoDetailRty;
-import com.ctx.repository.MetaInfoRty;
+import com.ctx.domain.*;
+import com.ctx.enums.DeliveryType;
+import com.ctx.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -31,13 +26,15 @@ public class CrawlingApplication implements CommandLineRunner {
 	MetaInfoRty metaInfoRty;
     @Autowired
     MetaInfoDetailRty metaInfoDetailRty;
+    @Autowired
+    ItemDeliveryRty itemDeliveryRty;
 	public static void main(String[] args) {
 		SpringApplication.run(CrawlingApplication.class, args);
 	}
 	@Override
-	@Transactional
 	public void run(String... args) throws Exception {
         cateInfo();
+        ItemInfo();
 	}
     private static Map loginInfo() {
         Map mLoginInfo = new HashMap<String, Object>();
@@ -47,7 +44,6 @@ public class CrawlingApplication implements CommandLineRunner {
         mLoginInfo.put("pw", "1111");
         return mLoginInfo;
     }
-
     private void cateInfo() throws Exception {
         Map mLoginInfo = loginInfo();
         CretecDoc cretecDoc = new CretecDoc("con");
@@ -83,13 +79,13 @@ public class CrawlingApplication implements CommandLineRunner {
         List<String> list = cretecDoc.getCsvItemData();
         StringBuffer resultSb = new StringBuffer();
         String line = "";
-
+        int i = 0;
         for ( String data : list ) {
             String[] aItem = data.split(",");
-            if ( itemRty.countById(Long.parseLong(aItem[0])) == 0 ) {
+            if ( i != 0 && itemRty.countById(Long.parseLong(aItem[0].replaceAll("-", ""))) == 0 ) {
                 Item item = new Item();
 
-                item.setId(aItem[0]);
+                item.setId(Long.parseLong(aItem[0].replaceAll("-", "")));
                 item.setProdCd(aItem[1]);
                 item.setUseYn(aItem[2]);
                 item.setSoldoutYn(aItem[3]);
@@ -97,14 +93,11 @@ public class CrawlingApplication implements CommandLineRunner {
                 item.setItemName(aItem[6]);
                 item.setModelNumber(aItem[7]);
                 item.setTopImageUrl(aItem[8]);
-                item.setOutUnit(Integer.parseInt(aItem[18]));
+                item.setOutUnit((int) Double.parseDouble(aItem[18]));
                 item.setUnitNm(aItem[19]);
                 item.setStandard(aItem[20]);
                 item.setInBox(Integer.parseInt(aItem[21]));
                 item.setOutBox(Integer.parseInt(aItem[22]));
-                if ( aItem[23] != null && aItem[23].equals("Y") ) {
-
-                }
                 if ( aItem[29] != null && !aItem[29].equals("") ) {
                     String[] cates = aItem[29].split("_");
                     if ( Integer.parseInt(cates[1]) == 0 ) { // 대분류
@@ -118,6 +111,15 @@ public class CrawlingApplication implements CommandLineRunner {
                     }
                 }
                 item.setOrgin(aItem[30]);
+                ItemDelivery itemDelivery = new ItemDelivery();
+                if ( aItem[23] != null && aItem[23].equals("Y") ) {
+                    itemDelivery.setDeliveryType(DeliveryType.FREIGHT);
+                    itemDeliveryRty.save(itemDelivery);
+                    item.setItemDelivery(itemDelivery);
+                }
+                if ( aItem[27] != null ) { //제품이미지 add
+                    item.getImageUrl().add(aItem[27]);
+                }
                 itemRty.save(item);
                 if ( aItem[26] != null && !aItem[26].equals("") ) {
                     String[] Metas = aItem[26].split("|");
@@ -126,6 +128,7 @@ public class CrawlingApplication implements CommandLineRunner {
                         String[] datas = data.split("_", 2);
                         metaInfo = metaInfoRty.findByName(datas[0]);
                         if ( metaInfo == null ) {  // INSERT
+                            metaInfo = new MetaInfo();
                             metaInfo.setItem(item);
                             metaInfo.setName(datas[0]);
                             metaInfoRty.save(metaInfo);
@@ -136,11 +139,7 @@ public class CrawlingApplication implements CommandLineRunner {
                         metaInfoDetailRty.save(metaInfoDetail);
                     }
                 }
-                if ( aItem[27] != null ) { //제품이미지 add
-
-                }
-
-            }
+            } i++;
         }
     }
 }

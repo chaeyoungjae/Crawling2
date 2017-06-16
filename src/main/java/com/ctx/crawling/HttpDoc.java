@@ -70,7 +70,6 @@ public class HttpDoc {
         StringBuffer result = new StringBuffer();
         String line = "";
         List lResult = new ArrayList<String>();
-
         while ( (line = rd.readLine()) != null ) {
             lResult.add(line);
         }
