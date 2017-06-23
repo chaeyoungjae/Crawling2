@@ -24,10 +24,10 @@ public class Item implements Serializable {
     private String  orgin;                      // 원산지
     private String  standard;                   // 규격
     private String  detailInfo;                 // 상세정보
-    private Integer outUnit;                    // 출고단위
+    private Double  outUnit;                    // 출고단위
     private String  unitNm;                     // 단위명
-    private Integer inBox;                      // 인박스
-    private Integer outBox;                     // 아웃박스
+    private Double  inBox;                      // 인박스
+    private Double  outBox;                     // 아웃박스
     private String  barcode;                    // 바코드
     private String  topImageUrl;                // 대표 이미지
     @ElementCollection
@@ -44,6 +44,7 @@ public class Item implements Serializable {
     private String  useYn;                      // 노출여부
     private String  soldoutYn;                  // 품절여부
     private String  delYn;                      // 삭제여부
+    @Temporal(TemporalType.TIMESTAMP)
     private Date    regDate;                    // 수정일
     @OneToOne
     private ItemDelivery itemDelivery;          // 배송
@@ -120,12 +121,28 @@ public class Item implements Serializable {
         this.detailInfo = detailInfo;
     }
 
-    public Integer getOutUnit() {
+    public Double getOutUnit() {
         return outUnit;
     }
 
-    public void setOutUnit(Integer outUnit) {
+    public void setOutUnit(Double outUnit) {
         this.outUnit = outUnit;
+    }
+
+    public Double getInBox() {
+        return inBox;
+    }
+
+    public void setInBox(Double inBox) {
+        this.inBox = inBox;
+    }
+
+    public Double getOutBox() {
+        return outBox;
+    }
+
+    public void setOutBox(Double outBox) {
+        this.outBox = outBox;
     }
 
     public String getUnitNm() {
@@ -134,22 +151,6 @@ public class Item implements Serializable {
 
     public void setUnitNm(String unitNm) {
         this.unitNm = unitNm;
-    }
-
-    public Integer getInBox() {
-        return inBox;
-    }
-
-    public void setInBox(Integer inBox) {
-        this.inBox = inBox;
-    }
-
-    public Integer getOutBox() {
-        return outBox;
-    }
-
-    public void setOutBox(Integer outBox) {
-        this.outBox = outBox;
     }
 
     public String getBarcode() {

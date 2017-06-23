@@ -18,6 +18,8 @@ public class Category implements Serializable {
     @Column(name="cate_nm")
     private String  categoryNm;
 
+    private Character useYn;
+
     @ManyToOne
     private Category parent;
 
@@ -55,5 +57,13 @@ public class Category implements Serializable {
 
     public void setParent(Category parent) {
         this.parent = parent;
+    }
+
+    public char getUseYn() {
+        return useYn;
+    }
+
+    public void setUseYn(Character useYn) {
+        this.useYn = useYn;
     }
 }

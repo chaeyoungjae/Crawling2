@@ -54,20 +54,30 @@ public class CrawlingApplication implements CommandLineRunner {
         for ( String data : lResult ) {
             String[] aCate = data.split(",");
             if ( aCate != null && aCate.length == 5 ) {
-                if ( categoryRty.countById(aCate[0] + aCate[1] + aCate[2] + aCate[3]) == 0 ) {
-                    Category cate = new Category();
-                    cate.setId(aCate[0] + aCate[1] + aCate[2] + aCate[3]);
-                    cate.setCategoryNm(aCate[4]);
-                    if ( Integer.parseInt(aCate[1]) == 0 ) { // 대분류
-                    } else if ( Integer.parseInt(aCate[2]) == 0 ) { // 중분류
-                        cate.setParent(categoryRty.findOne(aCate[0] + "000"));
-                    } else if ( Integer.parseInt(aCate[3]) == 0 ) { // 세분류
-                        cate.setParent(categoryRty.findOne(aCate[0] + aCate[1] + "00"));
-                    } else { // 미세분류
-                        cate.setParent(categoryRty.findOne(aCate[0] + aCate[1] + aCate[2] + "0"));
+                Category cate = new Category();
+                cate.setId(aCate[0] + aCate[1] + aCate[2] + aCate[3]);
+                cate.setCategoryNm(aCate[4]);
+                if ( Integer.parseInt(aCate[1]) == 0 ) { // 대분류
+                } else if ( Integer.parseInt(aCate[2]) == 0 ) { // 중분류
+                    if ( categoryRty.findOne(aCate[0] + "000") == null ) {
+                        cate.setUseYn('N');
+                    } else {
                     }
-                    categoryRty.save(cate);
+                    cate.setParent(categoryRty.findOne(aCate[0] + "000"));
+                } else if ( Integer.parseInt(aCate[3]) == 0 ) { // 세분류
+                    if ( categoryRty.findOne(aCate[0] + aCate[1] + "00") == null ) {
+                        cate.setUseYn('N');
+                    } else {
+                    }
+                    cate.setParent(categoryRty.findOne(aCate[0] + aCate[1] + "00"));
+                } else { // 미세분류
+                    if ( categoryRty.findOne(aCate[0] + aCate[1] + aCate[2] + "0") == null ) {
+                        cate.setUseYn('N');
+                    } else {
+                    }
+                    cate.setParent(categoryRty.findOne(aCate[0] + aCate[1] + aCate[2] + "0"));
                 }
+                categoryRty.save(cate);
             }
         }
     }
@@ -82,7 +92,7 @@ public class CrawlingApplication implements CommandLineRunner {
         int i = 0;
         for ( String data : list ) {
             String[] aItem = data.split(",");
-            if ( i != 0 && itemRty.countById(Long.parseLong(aItem[0].replaceAll("-", ""))) == 0 ) {
+            if ( isNumeric(aItem[0].replaceAll("-", "")) && i != 0 && itemRty.countById(Long.parseLong(aItem[0].replaceAll("-", ""))) == 0 ) {
                 Item item = new Item();
 
                 item.setId(Long.parseLong(aItem[0].replaceAll("-", "")));
@@ -93,11 +103,11 @@ public class CrawlingApplication implements CommandLineRunner {
                 item.setItemName(aItem[6]);
                 item.setModelNumber(aItem[7]);
                 item.setTopImageUrl(aItem[8]);
-                item.setOutUnit((int) Double.parseDouble(aItem[18]));
+                item.setOutUnit(Double.parseDouble(aItem[18]));
                 item.setUnitNm(aItem[19]);
                 item.setStandard(aItem[20]);
-                item.setInBox(Integer.parseInt(aItem[21]));
-                item.setOutBox(Integer.parseInt(aItem[22]));
+                item.setInBox(Double.parseDouble(aItem[21]));
+                item.setOutBox(Double.parseDouble(aItem[22]));
                 if ( aItem[29] != null && !aItem[29].equals("") ) {
                     String[] cates = aItem[29].split("_");
                     if ( Integer.parseInt(cates[1]) == 0 ) { // 대분류
@@ -120,12 +130,27 @@ public class CrawlingApplication implements CommandLineRunner {
                 if ( aItem[27] != null ) { //제품이미지 add
                     item.getImageUrl().add(aItem[27]);
                 }
+                List<Item> master  = itemRty.findByTopImageUrlAndMasterNull(item.getTopImageUrl());
+                List<Item> master2 = itemRty.findByTopImageUrlAndMasterNotNull(item.getTopImageUrl());
+                if ( master2 != null && master2.size() > 0 ) {
+                    item.setMaster(master2.get(0));
+                }
                 itemRty.save(item);
+                for ( Item m : master ) {
+                    if ( !item.getId().equals(m.getId()) ) {
+                        if ( master2 != null && master2.size() > 0 ) {
+                            m.setMaster(master2.get(0));
+                        } else {
+                            m.setMaster(item);
+                        }
+                    }
+                    itemRty.save(m);
+                }
                 if ( aItem[26] != null && !aItem[26].equals("") ) {
                     String[] Metas = aItem[26].split("|");
                     for ( String meta : Metas ) {
                         MetaInfo metaInfo = new MetaInfo();
-                        String[] datas = data.split("_", 2);
+                        String[] datas = meta.split("_", 2);
                         metaInfo = metaInfoRty.findByName(datas[0]);
                         if ( metaInfo == null ) {  // INSERT
                             metaInfo = new MetaInfo();
@@ -141,5 +166,13 @@ public class CrawlingApplication implements CommandLineRunner {
                 }
             } i++;
         }
+    }
+    public static boolean isNumeric(String str) {
+        try {
+            double d = Double.parseDouble(str);
+        } catch(NumberFormatException nfe) {
+            return false;
+        }
+        return true;
     }
 }
