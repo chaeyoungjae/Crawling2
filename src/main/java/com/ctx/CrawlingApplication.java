@@ -92,7 +92,7 @@ public class CrawlingApplication implements CommandLineRunner {
         int i = 0;
         for ( String data : list ) {
             String[] aItem = data.split(",");
-            if ( isNumeric(aItem[0].replaceAll("-", "")) && i != 0 && itemRty.countById(Long.parseLong(aItem[0].replaceAll("-", ""))) == 0 ) {
+            if ( isNumeric(aItem[0].replaceAll("-", "")) && i != 0 ) {
                 Item item = new Item();
 
                 item.setId(Long.parseLong(aItem[0].replaceAll("-", "")));
