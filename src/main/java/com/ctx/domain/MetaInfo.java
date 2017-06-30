@@ -1,6 +1,9 @@
 package com.ctx.domain;
 
+import org.hibernate.annotations.UpdateTimestamp;
+
 import javax.persistence.*;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -15,6 +18,9 @@ public class MetaInfo {
     @ManyToOne
     private Item item;
     private String name;
+    @UpdateTimestamp
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date regDate;                    // 수정일
 
     public Long getId() {
         return id;

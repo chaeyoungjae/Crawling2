@@ -1,9 +1,12 @@
 package com.ctx.domain;
 
+import org.hibernate.annotations.UpdateTimestamp;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -28,6 +31,10 @@ public class Category implements Serializable {
 
     @OneToMany(mappedBy = "category")
     private List<Item> items = new ArrayList<>();
+
+    @UpdateTimestamp
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date regDate;                    // 수정일
 
     public Category(String id) {
         this.id = id;

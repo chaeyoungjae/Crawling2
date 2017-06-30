@@ -1,4 +1,6 @@
 package com.ctx.domain;
+import org.hibernate.annotations.UpdateTimestamp;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -44,10 +46,12 @@ public class Item implements Serializable {
     private String  useYn;                      // 노출여부
     private String  soldoutYn;                  // 품절여부
     private String  delYn;                      // 삭제여부
+    @UpdateTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     private Date    regDate;                    // 수정일
     @OneToOne
     private ItemDelivery itemDelivery;          // 배송
+
 
     public Long getId() {
         return id;

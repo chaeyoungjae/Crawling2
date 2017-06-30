@@ -10,10 +10,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import javax.transaction.Transactional;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 @SpringBootApplication
@@ -33,7 +30,7 @@ public class CrawlingApplication implements CommandLineRunner {
 	}
 	@Override
 	public void run(String... args) throws Exception {
-        cateInfo();
+//        cateInfo();
         ItemInfo();
 	}
     private static Map loginInfo() {
@@ -147,21 +144,38 @@ public class CrawlingApplication implements CommandLineRunner {
                     itemRty.save(m);
                 }
                 if ( aItem[26] != null && !aItem[26].equals("") ) {
-                    String[] Metas = aItem[26].split("|");
-                    for ( String meta : Metas ) {
-                        MetaInfo metaInfo = new MetaInfo();
-                        String[] datas = meta.split("_", 2);
-                        metaInfo = metaInfoRty.findByName(datas[0]);
-                        if ( metaInfo == null ) {  // INSERT
-                            metaInfo = new MetaInfo();
-                            metaInfo.setItem(item);
-                            metaInfo.setName(datas[0]);
-                            metaInfoRty.save(metaInfo);
+                    if ( !aItem[26].equals("정보없음") ) {
+                        String[] Metas = aItem[26].split("\\|");
+                        for (String meta : Metas) {
+                            MetaInfo metaInfo = new MetaInfo();
+                            String[] datas = meta.split("_", 2);
+                            metaInfo = metaInfoRty.findByNameAndItem(datas[0], item);
+                            if (metaInfo == null) {  // INSERT
+                                metaInfo = new MetaInfo();
+                                metaInfo.setItem(item);
+                                metaInfo.setName(datas[0]);
+                                metaInfoRty.save(metaInfo);
+                            } else {
+                                metaInfoRty.save(metaInfo);
+                            }
+                            MetaInfoDetail metaInfoDetail = metaInfoDetailRty.findByNameAndMetaInfo(datas[1], metaInfo);
+                            if (metaInfoDetail == null) {
+                                metaInfoDetail = new MetaInfoDetail();
+                                metaInfoDetail.setName(datas[1]);
+                                metaInfoDetail.setMetaInfo(metaInfo);
+                                metaInfoDetailRty.save(metaInfoDetail);
+                            } else {
+                                metaInfoDetailRty.save(metaInfoDetail);
+                            }
                         }
-                        MetaInfoDetail metaInfoDetail = new MetaInfoDetail();
-                        metaInfoDetail.setName(datas[1]);
-                        metaInfoDetail.setMetaInfo(metaInfo);
-                        metaInfoDetailRty.save(metaInfoDetail);
+                        List<MetaInfo> tmpList =  metaInfoRty.findAllByItem(item);
+                        for ( MetaInfo tmpInfo : tmpList ) {
+                            if ( !Arrays.asList(Metas).contains(tmpInfo.getName()) ) {
+                                List<MetaInfoDetail> metaInfoDetails = metaInfoDetailRty.findAllByMetaInfo(tmpInfo);
+                                metaInfoDetailRty.delete(metaInfoDetails);
+                                metaInfoRty.delete(tmpInfo);
+                            }
+                        }
                     }
                 }
             } i++;
