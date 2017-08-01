@@ -105,7 +105,7 @@ public class HttpDoc {
     public String GetPageContent(String url, String encd) throws Exception {
         try {
             HttpGet request = new HttpGet(url);
-            request.setHeader("Host",  "con.toolpark.kr");
+            request.setHeader("Host",  "distool.toolpark.kr");
             request.setHeader("User-Agent", UserAgent);
             request.setHeader("Accept", "text/html,application/xhtml+xml");
             request.setHeader("Accept-Language", "ko-KR");
@@ -133,7 +133,7 @@ public class HttpDoc {
     public List GetPageContentBuffer(String url, String encd) throws Exception {
         try {
             HttpGet request = new HttpGet(url);
-            request.setHeader("Host",  "con.toolpark.kr");
+            request.setHeader("Host",  "distool.toolpark.kr");
             request.setHeader("User-Agent", UserAgent);
             request.setHeader("Accept", "text/html,application/xhtml+xml");
             request.setHeader("Accept-Language", "ko-KR");

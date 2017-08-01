@@ -18,6 +18,50 @@ public class ItemPrice {
     private Date    startDate; // 시작 일자
     private Date    endDate;   // 종료 일자
 
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setItem(Item item) {
+        this.item = item;
+    }
+
+    public Integer getSlePc() {
+        return slePc;
+    }
+
+    public void setSlePc(Integer slePc) {
+        this.slePc = slePc;
+    }
+
+    public Integer getPricePc() {
+        return pricePc;
+    }
+
+    public void setPricePc(Integer pricePc) {
+        this.pricePc = pricePc;
+    }
+
+    public Date getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(Date startDate) {
+        this.startDate = startDate;
+    }
+
+    public Date getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(Date endDate) {
+        this.endDate = endDate;
+    }
+
     public Item getItem() {
         return item;
     }

@@ -14,12 +14,12 @@ import java.util.List;
 @Table(name="item")
 public class Item implements Serializable {
     @Id
-    private Long  id;
+    private Long  id;                           // 상품코드
     @ManyToOne
     private Item    master;                     // 대표상품
     @OneToMany(mappedBy = "master")
     private List<Item> children;                // 자식 상품
-    private String  prodCd;                     // 상품코드
+    private String  itemCd;                     // 품번
     private String  itemName;                   // 실제 제품명
     private String  modelNumber;                // 모델명
     private String  maker;                      // 제조사
@@ -69,12 +69,12 @@ public class Item implements Serializable {
         this.master = master;
     }
 
-    public String getProdCd() {
-        return prodCd;
+    public String getItemCd() {
+        return itemCd;
     }
 
-    public void setProdCd(String prodCd) {
-        this.prodCd = prodCd;
+    public void setItemCd(String itemCd) {
+        this.itemCd = itemCd;
     }
 
     public String getItemName() {

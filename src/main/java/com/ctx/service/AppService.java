@@ -18,6 +18,8 @@ public class AppService {
     @Autowired
     ItemRty itemRty;
     @Autowired
+    ItemPriceRty itemPriceRty;
+    @Autowired
     MetaInfoRty metaInfoRty;
     @Autowired
     MetaInfoDetailRty metaInfoDetailRty;
@@ -37,14 +39,13 @@ public class AppService {
         Map mLoginInfo = new HashMap<String, Object>();
         mLoginInfo.put("idName", "id");
         mLoginInfo.put("pwName", "password");
-        mLoginInfo.put("id", "admin");
+        mLoginInfo.put("id", "chaester");
         mLoginInfo.put("pw", "1111");
         return mLoginInfo;
     }
-    @Transactional
     public void crawlingCategory() throws Exception {
         Map mLoginInfo = loginInfo();
-        CretecDoc cretecDoc = new CretecDoc("con");
+        CretecDoc cretecDoc = new CretecDoc("distool");
         cretecDoc.Login(mLoginInfo);
         List<String> lResult = cretecDoc.getCsvCateData();
         List<Category> saveCate = new ArrayList<>();
@@ -78,11 +79,10 @@ public class AppService {
             }
         }
     }
-    @Transactional
     public void crawlingItem() throws Exception {
         Map mLoginInfo = loginInfo();
 
-        CretecDoc cretecDoc = new CretecDoc("con");
+        CretecDoc cretecDoc = new CretecDoc("distool");
         cretecDoc.Login(mLoginInfo);
         List<String> list = cretecDoc.getCsvItemData();
         StringBuffer resultSb = new StringBuffer();
@@ -94,7 +94,7 @@ public class AppService {
             if ( isNumeric(aItem[0].replaceAll("-", "")) && i != 0 ) {
                 Item item = new Item();
                 item.setId(Long.parseLong(aItem[0].replaceAll("-", "")));
-                item.setProdCd(aItem[1]);
+                item.setItemCd(aItem[1]);
                 item.setUseYn(aItem[2]);
                 item.setSoldoutYn(aItem[3]);
                 item.setMaker(aItem[5]);
@@ -134,6 +134,41 @@ public class AppService {
                     item.setMaster(master2.get(0));
                 }
                 itemRty.save(item);
+                ItemPrice itemPrice = itemPriceRty.findByItemAndStartDateBetween(item.getId()) != null && itemPriceRty.findByItemAndStartDateBetween(item.getId()).size() > 0 ? itemPriceRty.findByItemAndStartDateBetween(item.getId()).get(0) : null;
+                Calendar cal = Calendar.getInstance();
+                cal.set(Calendar.YEAR,  9999);
+                cal.set(Calendar.MONTH, Calendar.DECEMBER);
+                cal.set(Calendar.DATE,  31);
+                cal.set(Calendar.HOUR_OF_DAY,  23);
+                cal.set(Calendar.MINUTE,  59);
+                cal.set(Calendar.SECOND,  59);
+
+                if ( itemPrice != null ) { //기존에 있음
+                    if (
+                        !itemPrice.getSlePc().equals(aItem[14] != null ? Integer.parseInt(aItem[14]) : 0) ||
+                        !itemPrice.getPricePc().equals(aItem[12] != null ? Integer.parseInt(aItem[12]) : 0)
+                    ) {
+                        itemPrice.setEndDate(new Date());
+                        itemPriceRty.save(itemPrice);
+
+                        ItemPrice nItemPrice = new ItemPrice();
+                        nItemPrice.setItem(item);
+                        nItemPrice.setStartDate(new Date());
+                        nItemPrice.setEndDate(new Date(cal.getTimeInMillis()));
+                        nItemPrice.setSlePc(aItem[14] != null ? Integer.parseInt(aItem[14]) : 0);
+                        nItemPrice.setPricePc(aItem[12] != null ? Integer.parseInt(aItem[12]) : 0);
+                        itemPriceRty.save(nItemPrice);
+                    }
+                } else { // 신규
+                    itemPrice = new ItemPrice();
+                    itemPrice.setItem(item);
+                    itemPrice.setStartDate(new Date());
+                    itemPrice.setEndDate(new Date(cal.getTimeInMillis()));
+                    itemPrice.setSlePc(aItem[14]   != null ? Integer.parseInt(aItem[14]) : 0);
+                    itemPrice.setPricePc(aItem[12] != null ? Integer.parseInt(aItem[12]) : 0);
+                    itemPriceRty.save(itemPrice);
+                }
+
                 for ( Item m : master ) {
                     if ( !item.getId().equals(m.getId()) ) {
                         if ( master2 != null && master2.size() > 0 ) {
@@ -147,16 +182,14 @@ public class AppService {
                 if ( aItem[26] != null && !aItem[26].equals("") ) {
                     if ( !aItem[26].equals("정보없음") ) {
                         String[] Metas = aItem[26].split("\\|");
+                        List<String> lMeta = new ArrayList<>();
                         for (String meta : Metas) {
-                            MetaInfo metaInfo = new MetaInfo();
                             String[] datas = meta.split("_", 2);
-                            metaInfo = metaInfoRty.findByNameAndItem(datas[0], item);
+                            MetaInfo metaInfo = metaInfoRty.findByNameAndItem(datas[0], item);
                             if (metaInfo == null) {  // INSERT
                                 metaInfo = new MetaInfo();
                                 metaInfo.setItem(item);
                                 metaInfo.setName(datas[0]);
-                                metaInfoRty.save(metaInfo);
-                            } else {
                                 metaInfoRty.save(metaInfo);
                             }
                             MetaInfoDetail metaInfoDetail = metaInfoDetailRty.findByNameAndMetaInfo(datas[1], metaInfo);
@@ -165,13 +198,13 @@ public class AppService {
                                 metaInfoDetail.setName(datas[1]);
                                 metaInfoDetail.setMetaInfo(metaInfo);
                                 metaInfoDetailRty.save(metaInfoDetail);
-                            } else {
-                                metaInfoDetailRty.save(metaInfoDetail);
                             }
+                            lMeta.add(datas[0]);
+                            lMeta.add(datas[1]);
                         }
                         List<MetaInfo> tmpList =  metaInfoRty.findAllByItem(item);
                         for ( MetaInfo tmpInfo : tmpList ) {
-                            if ( !Arrays.asList(Metas).contains(tmpInfo.getName()) ) {
+                            if ( !lMeta.contains(tmpInfo.getName()) ) {
                                 List<MetaInfoDetail> metaInfoDetails = metaInfoDetailRty.findAllByMetaInfo(tmpInfo);
                                 metaInfoDetailRty.delete(metaInfoDetails);
                                 metaInfoRty.delete(tmpInfo);

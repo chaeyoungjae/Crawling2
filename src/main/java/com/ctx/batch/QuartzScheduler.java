@@ -46,7 +46,7 @@ public class QuartzScheduler {
         factoryBean.setStartDelay(3000);
         factoryBean.setName("category");
         factoryBean.setGroup("crawling");
-        factoryBean.setCronExpression("0 0 0 ? * *");
+        factoryBean.setCronExpression("0 0 22 ? * *");
         return factoryBean;
     }
     @Bean
@@ -56,7 +56,7 @@ public class QuartzScheduler {
         factoryBean.setStartDelay(3000);
         factoryBean.setName("item");
         factoryBean.setGroup("crawling");
-        factoryBean.setCronExpression("0 59 16 ? * *");
+        factoryBean.setCronExpression("0 0 23 ? * *");
         return factoryBean;
     }
 }
